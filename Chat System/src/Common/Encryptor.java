@@ -23,12 +23,12 @@ public class Encryptor {
 
         for (int x=0; x < input.length(); x+=2)
         {
-            even += input.charAt (x);
+            even += (char)(input.charAt (x)+1);
         }
 
         for (int x=1; x < input.length(); x+=2)
         {
-            odd += input.charAt (x);
+            odd += (char)(input.charAt (x)+1);
         }
 
         return even + odd;
@@ -42,9 +42,9 @@ public class Encryptor {
             for (int x = 0; x<input.length()/2; x++)
             {
 
-                end +=input.charAt(x);
+                end +=(char)(input.charAt(x)-1);
                 x+= (input.length()/2);
-                end+=input.charAt(x);
+                end+=(char)(input.charAt(x)-1);
                 x-= (input.length()/2);
             }
             return end;
@@ -52,12 +52,12 @@ public class Encryptor {
 
         for (int x = 0; x<input.length()/2; x++)
         {
-            end+=input.charAt(x);
-            end+=input.charAt(input.length()/2+x+1);
+            end+=(char)(input.charAt(x)-1);
+            end+=(char)(input.charAt(input.length()/2+x+1)-1);
 
         }
 
-        end += input.charAt(input.length()/2);
+        end += (char)(input.charAt(input.length()/2)-1);
 
         return end;
 	}

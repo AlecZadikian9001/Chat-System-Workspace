@@ -2,7 +2,6 @@ package Server;
 import java.net.*;
 import java.util.Scanner;
 import java.io.*;
-
 import Common.Encryptor;
 
 public class ChatServerThread extends Thread {
@@ -77,7 +76,9 @@ public class ChatServerThread extends Thread {
 
 				/* Handle the text. */
 				if (fromClient.length()>0){ 
-					if (fromClient.charAt(0)=='¹'){ //if it's encrypted
+					if (fromClient.charAt(0) == '}'){ //if it's encrypted
+						System.out.println("Encrypted message detected.");
+						fromClient = fromClient.substring(1, fromClient.length());
 						fromClient = Encryptor.decrypt(fromClient, 5);
 					}
 					if (fromClient.charAt(0)=='/'){ //if it's a command
