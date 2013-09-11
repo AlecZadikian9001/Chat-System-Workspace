@@ -3,14 +3,18 @@ package Client;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.net.Socket;
 
 public class ChatClient extends JFrame implements ActionListener {
+	private String name;
+	private boolean encrypted;
 
-    // GUI stuff
+    
     private JTextArea  enteredText = new JTextArea(10, 32);
     private JTextField typedText   = new JTextField(32);
 
@@ -27,7 +31,7 @@ public class ChatClient extends JFrame implements ActionListener {
         try {
             socket = new Socket(hostName, Integer.parseInt(port));
             out    = new Out(socket);
-            in     = new In(socket);
+            in     = new In(socket); //IF SERVER SENDS A SINGLE MESSAGE W/ RIGHT CURLY BRACE, 
         }
         catch (Exception ex) { ex.printStackTrace(); }
 
@@ -36,6 +40,8 @@ public class ChatClient extends JFrame implements ActionListener {
             new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {
                     out.close();
+                    
+                    
 //                    in.close();
 //                    try                   { socket.close();        }
 //                    catch (Exception ioe) { ioe.printStackTrace(); }
@@ -48,12 +54,19 @@ public class ChatClient extends JFrame implements ActionListener {
         enteredText.setEditable(false);
         enteredText.setBackground(Color.LIGHT_GRAY);
         typedText.addActionListener(this);
-
+        
+        JOptionPane getName = new JOptionPane();
+        String nicky = getName.showInputDialog("Please input your nickname.");//gets name
+        out.println("/nick");
+        name = nicky;
+        
         Container content = getContentPane();
         content.add(new JScrollPane(enteredText), BorderLayout.CENTER);
         content.add(typedText, BorderLayout.SOUTH);
-
-
+        
+        // to encrypt, use /encrypt & encryption class
+        //put button 
+        //every time message is sent while encryption is on, put {slash in front of it
         // display the window, with focus on typing box
         setTitle("Chat Client 1.0: [" + hostName + ":" + port + "]");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -69,7 +82,13 @@ public class ChatClient extends JFrame implements ActionListener {
         typedText.setText("");
         typedText.requestFocusInWindow();
     }
-
+    
+    public void encryptStuff()
+    {
+    	
+    }
+    
+    
     // listen to socket and print everything that server broadcasts
     public void listen() {
         String s;
@@ -84,7 +103,8 @@ public class ChatClient extends JFrame implements ActionListener {
         System.err.println("Closed client socket");
     }
 
-    public static void main(String[] args)  {
+    public static void main(String[] args)  
+    {
         ChatClient client = new ChatClient(args[0], args[1]);
         client.listen();
     } 
