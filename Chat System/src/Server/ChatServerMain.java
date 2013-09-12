@@ -32,7 +32,7 @@ public class ChatServerMain{
 		}
 
 		//Initialize messenger thread.
-		chatRoom = new ChatServerChatRoom("Main");
+		chatRoom = new ChatServerChatRoom("Main", false);
 
 		/* In the main thread, continuously listen for new clients and spin off threads for them. */
 		while (true) {
@@ -42,8 +42,8 @@ public class ChatServerMain{
 				System.out.println("New connection from "+clientSocket.getInetAddress().toString());
 				/* Create a thread for it and start, giving it the right id. */
 				ChatServerThread clientThread = new ChatServerThread(clientSocket, -2, "INVALID NAME", chatRoom); //id = -2 for uninitialized
+				chatRoom.addThread(clientThread);
 				clientThread.start();
-
 			} catch (IOException e) {
 				System.out.println("Accept failed: " + e);
 				System.exit(1);

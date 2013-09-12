@@ -23,6 +23,7 @@ public class ChatServerThread extends Thread {
 	public void setID(int a){ id = a; }
 
 	public String getUserName(){ return name; }
+	public void setUserName(String n){ name = n; }
 
 	public ChatServerChatRoom getChatRoom(){ return chatRoom; }
 
@@ -50,15 +51,6 @@ public class ChatServerThread extends Thread {
 	@Override
 	public void run() {
 		Scanner scanner; //for analyzing text
-		// Ask for the name.
-		out.println("Enter a username, then press return: ");
-		// Take in the client's name.
-		try {
-			this.name = in.readLine();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		chatRoom.addThread(this);
 		while (true) {
 			try {
 				/* Get string from client */
@@ -66,25 +58,25 @@ public class ChatServerThread extends Thread {
 
 				/* If null, connection is closed, so just finish */
 				if (fromClient == null) {
-					System.out.println("Client disconnected");
-					chatRoom.tellEveryone(""+name+" disconnected.", -1, "Server Message"); //server message
-					this.in.close();
-					this.out.close();
-					this.socket.close();
-					return;
+					
 				}
 
 				/* Handle the text. */
 				if (fromClient.length()>0){ 
-					if (fromClient.charAt(0) == '}'){ //if it's encrypted
-						System.out.println("Encrypted message detected.");
-						fromClient = fromClient.substring(1, fromClient.length());
-						fromClient = Encryptor.decrypt(fromClient, 5);
-					}
 					if (fromClient.charAt(0)=='/'){ //if it's a command
 						scanner = new Scanner(fromClient);
-						if (scanner.next().equalsIgnoreCase("/tell")){
+						String firstWord = scanner.next();
+						if (firstWord.equalsIgnoreCase("/whisper")){ //to tell a user a private message
 							if (!chatRoom.tell(scanner.next(), scanner.next(), name)) this.out.println("User not found online.");
+						}
+						else if (firstWord.equalsIgnoreCase("/nick")){ //to change a user's name
+							if (!chatRoom.changeName(scanner.next(), id)) this.out.println("Name already taken.");
+						}
+						else if (firstWord.equalsIgnoreCase("/disconnect")){ //to disconnect gracefully
+							disconnect(scanner.next());
+						}
+						else if (firstWord.equalsIgnoreCase("/chatroom")){
+							if (!chatRoom.changeName(scanner.next(), id)) this.out.println("Name already taken.");
 						}
 						else this.out.println("Invalid command.");
 						scanner.close();
@@ -98,6 +90,17 @@ public class ChatServerThread extends Thread {
 				return;
 			}
 		}
+	}
+	
+	public void disconnect(String message){ //called when disconnecting from server
+		System.out.println("Client "+name+ " disconnected");
+		if (message!=null) chatRoom.tellEveryone(message, id, name);
+		chatRoom.tellEveryone(""+name+" disconnected.", -1, "Server Message"); //server message
+		try{
+		this.in.close();
+		this.out.close();
+		this.socket.close();
+		} catch (Exception e) { /*#nobodycares*/ }
 	}
 
 	public void tell(String message, String user){
